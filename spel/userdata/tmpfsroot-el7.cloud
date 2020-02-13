@@ -12,7 +12,7 @@ system_info:
     lock_passwd: true
     sudo: ["ALL=(root) NOPASSWD:ALL"]
 
-package_upgrade: true
+package_upgrade: false
 
 ##############################################################################
 #
@@ -23,9 +23,13 @@ package_upgrade: true
 runcmd:
   - set -x
   - set -e
-
-  # Prevent selinux from interfering
+    # Prevent selinux from interfering
   - setenforce 0 || true
+
+  - echo "export http_proxy=http://172.31.14.231:3128" > /etc/profile.d/proxy.sh && chmod 755 /etc/profile.d/proxy.sh
+  - echo "export https_proxy=http://172.31.14.231:3128" >> /etc/profile.d/proxy.sh
+  - echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh
+  - echo "proxy=http://172.31.14.231:3128" >> /etc/yum.conf
 
   # Get fuser
   - yum -y install psmisc
@@ -46,7 +50,7 @@ runcmd:
   - mount --move /oldroot/proc /proc
   - mount --move /oldroot/sys /sys
   - mount --move /oldroot/run /run
-  - mount --move /oldroot/tmp /tmp || true  # not every ami starts with this
+  - mount --move /oldroot/tmp /tmp || true # not every ami starts with this
 
   # Unmount everything we can on /oldroot
   - |
@@ -70,11 +74,9 @@ runcmd:
   - sed -i -e "s/^[#]*Port .*$/Port 122/" /etc/ssh/sshd_config
   - test $(systemctl | grep -c firewalld) -eq 0 || systemctl stop firewalld
   - systemctl restart sshd
-
   # Further stuff to do via packer before `umount /oldroot`
   # Restart systemd
   #- systemctl daemon-reexec
-
   # Stop services holding /oldroot
   #   Note: Do not do this in an interactive shell because you will probably
   #   kill your session. Instead, just use `fuser -vm /oldroot` to identify
