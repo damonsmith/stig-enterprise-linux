@@ -30,7 +30,7 @@ runcmd:
   - echo "export https_proxy=http://172.31.14.231:3128" >> /etc/profile.d/proxy.sh
   - echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh
   - echo "proxy=http://172.31.14.231:3128" >> /etc/yum.conf
-
+  - yum -y update
   # Get fuser
   - yum -y install psmisc
 
