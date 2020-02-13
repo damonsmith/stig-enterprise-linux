@@ -78,7 +78,6 @@
     },
     {
       "environment_vars": [
-        "SPEL_PROXYSERVER={{ user `spel_proxyserver` }}",
         "SPEL_AMIGENSOURCE={{ user `spel_amigen7source` }}",
         "SPEL_AMIGENBRANCH={{ user `spel_amigen7branch` }}",
         "SPEL_AMIGENSTORLAY={{ user `spel_amigen7storlay` }}",
@@ -96,6 +95,7 @@
         "SPEL_EPELRELEASE={{ user `spel_epel7release` }}",
         "SPEL_EPELREPO={{ user `spel_epelrepo` }}",
         "SPEL_EXTRARPMS={{ user `spel_extrarpms` }}",
+        "SPEL_PROXYSERVER={{ user `spel_proxyserver` }}",
         "SPEL_VGNAME=VolGroup00"
       ],
       "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
@@ -119,7 +119,7 @@
     "ami_groups": "",
     "ami_regions": "",
     "ami_users": "",
-    "aws_ec2_instance_type": "m5.xlarge",
+    "aws_ec2_instance_type": "t2.large",
     "aws_region": "ap-southeast-2",
     "root_volume_size": "30",
     "security_group_cidrs": "0.0.0.0/0",
