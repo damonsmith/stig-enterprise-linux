@@ -1,0 +1,145 @@
+{
+    "builders": [
+        {
+            "ami_description": "STIG-partitioned [*NOT HARDENED*], LVM-enabled, \"minimal\" RHEL 7 AMI (yum and license chargeback included) with updates through {{ isotime \"2006-01-02\" }}. Default username `maintuser`. See {{ user `spel_desc_url` }}.",
+            "ami_groups": "{{ user `ami_groups` }}",
+            "ami_name": "{{ user `spel_identifier` }}-{{ build_name }}-{{ user `spel_version` }}.x86_64-gp2",
+            "ami_regions": "{{ user `ami_regions` }}",
+            "ami_users": "{{ user `ami_users` }}",
+            "communicator": "ssh",
+            "ena_support": true,
+            "force_deregister": "{{ user `ami_force_deregister` }}",
+            "instance_type": "{{ user `aws_ec2_instance_type` }}",
+            "launch_block_device_mappings": [
+                {
+                    "delete_on_termination": true,
+                    "device_name": "/dev/sda1",
+                    "volume_size": "{{ user `root_volume_size` }}",
+                    "volume_type": "gp2"
+                }
+            ],
+            "name": "minimal-rhel-7-hvm",
+            "region": "{{ user `aws_region` }}",
+            "source_ami": "{{ user `source_ami_rhel7_hvm` }}",
+            "sriov_support": true,
+            "ssh_interface": "{{ user `ssh_interface` }}",
+            "ssh_port": 122,
+            "ssh_pty": true,
+            "ssh_timeout": "60m",
+            "ssh_username": "spel",
+            "subnet_id": "{{ user `subnet_id` }}",
+            "temporary_security_group_source_cidrs": "{{ user `security_group_cidrs` }}",
+            "type": "amazon-ebs",
+            "user_data_file": "{{ template_dir }}/userdata/tmpfsroot-el7.cloud"
+        }
+    ],
+    "post-processors": [
+        [
+            {
+                "files": [
+                    ".spel/{{ user `spel_version` }}/{{ user `spel_identifier` }}-{{ build_name }}.manifest.txt"
+                ],
+                "type": "artifice"
+            }
+        ],
+        [
+            {
+                "output": ".spel/{{ user `spel_version` }}/packer-manifest.json",
+                "type": "manifest"
+            }
+        ]
+    ],
+    "provisioners": [
+        {
+            "execute_command": "{{ .Vars }} sudo -E /bin/sh -ex '{{ .Path }}'",
+            "inline": [
+                "echo Restarting systemd",
+                "systemctl daemon-reexec",
+                "echo Killing processes locking /oldroot",
+                "fuser -vmk /oldroot"
+            ],
+            "only": [
+                "minimal-rhel-7-hvm"
+            ],
+            "type": "shell"
+        },
+        {
+            "execute_command": "{{ .Vars }} sudo -E /bin/sh -ex '{{ .Path }}'",
+            "inline": [
+                "echo Unmounting /oldroot",
+                "test $(grep -c /oldroot /proc/mounts) -eq 0 || umount /oldroot",
+                "echo Unmounting /boot",
+                "test $(grep -c /boot /proc/mounts) -eq 0 || umount /boot"
+            ],
+            "only": [
+                "minimal-rhel-7-hvm"
+            ],
+            "type": "shell"
+        },
+        {
+            "environment_vars": [
+                "SPEL_AMIGENSOURCE={{ user `spel_amigen7source` }}",
+                "SPEL_AMIGENBRANCH={{ user `spel_amigen7branch` }}",
+                "SPEL_AMIGENSTORLAY={{ user `spel_amigen7storlay` }}",
+                "SPEL_AMIUTILSSOURCE={{ user `spel_amiutilsource` }}",
+                "SPEL_AWSCLISOURCE={{ user `spel_awsclisource` }}",
+                "SPEL_BOOTLABEL=/boot",
+                "SPEL_BUILDDEPS=lvm2 parted yum-utils unzip git",
+                "SPEL_BUILDNAME={{ build_name }}",
+                "SPEL_CHROOT=/mnt/ec2-root",
+                "SPEL_DEVNODE=/dev/xvda",
+                "SPEL_CLOUDPROVIDER=aws",
+                "SPEL_CUSTOMREPORPM={{ user `spel_customreporpm7` }}",
+                "SPEL_CUSTOMREPONAME={{ user `spel_customreponame7` }}",
+                "SPEL_FIPSDISABLE={{ user `spel_disablefips` }}",
+                "SPEL_EPELRELEASE={{ user `spel_epel7release` }}",
+                "SPEL_EPELREPO={{ user `spel_epelrepo` }}",
+                "SPEL_EXTRARPMS={{ user `spel_extrarpms` }}",
+                "SPEL_VGNAME=VolGroup00"
+            ],
+            "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
+            "only": [
+                "minimal-rhel-7-hvm"
+            ],
+            "scripts": [
+                "{{ template_dir }}/scripts/amigen7-build.sh"
+            ],
+            "type": "shell"
+        },
+        {
+            "destination": ".spel/{{ user `spel_version` }}/{{ user `spel_identifier` }}-{{ build_name }}.manifest.txt",
+            "direction": "download",
+            "source": "/tmp/manifest.txt",
+            "type": "file"
+        }
+    ],
+    "variables": {
+        "ami_force_deregister": "false",
+        "ami_groups": "",
+        "ami_regions": "",
+        "ami_users": "",
+        "aws_ec2_instance_type": "m5.xlarge",
+        "aws_region": "ap-southeast-2",
+        "root_volume_size": "30",
+        "security_group_cidrs": "0.0.0.0/0",
+        "source_ami_rhel7_hvm": "ami-0f1ef883e90ca71c0",
+        "spel_amigen7branch": "master",
+        "spel_amigen7source": "https://github.com/damonsmith/AMIgen7.git",
+        "spel_amigen7storlay": "/:rootVol:8,swap:swapVol:2,/home:homeVol:1,/var:varVol:8,/var/log:logVol:4,/var/log/audit:auditVol:100%FREE",
+        "spel_amiutilsource": "https://github.com/ferricoxide/Lx-GetAMI-Utils.git",
+        "spel_awsclisource": "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip",
+        "spel_customreponame7": "",
+        "spel_customreporpm7": "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+        "spel_desc_url": "https://github.com/plus3it/spel",
+        "spel_disablefips": "",
+        "spel_epel7release": "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+        "spel_epelrepo": "epel",
+        "spel_extrarpms": "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm,python36",
+        "spel_identifier": "",
+        "spel_version": "",
+        "ssh_interface": "public_dns",
+        "subnet_id": "",
+        "vagrantcloud_token": "{{env `VAGRANTCLOUD_TOKEN`}}",
+        "vagrantcloud_username": ""
+    }
+}
