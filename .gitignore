@@ -58,3 +58,5 @@ packer_cache
 __pycache__
 *vendor/
 *.terraform/
+
+*.generated

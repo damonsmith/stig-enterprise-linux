@@ -42,10 +42,28 @@ Extract the contents of this package into the home folder
 install packer:
 ```curl -O https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip```
 
+customise the build_vars.json file like so:
+```
+{
+    "spel_version": "0.0.4",
+    "subnet_id": "subnet-099d03701d0220f51",
+    "spel_identifier": "YOUR_AMI_ID",
+    "aws_region": "ap-southeast-2",
+    "source_ami_rhel7_hvm": "ami-0f1ef883e90ca71c0",
+    "spel_amigen7source": "https://github.com/damonsmith/AMIgen7.git",
+    "spel_proxyserver": "http://1.2.3.4:3128/"
+}
+```
+
 cd into spel and run the build:
 ```
 cd spel
-../packer build -var 'spel_identifier=BOM-SOE' -var 'spel_version=1.0.0' spel/rhel7.json
+nohup ../packer build -only minimal-rhel-7-hvm -var-file build_vars.json spel/rhel7.json | tee ~/packer-log.txt
 ```
 
+
+
 This should take 15 minutes or so. Once completed successfully the build will output an AMI ID which should be visible in the My AMIs section of AWS EC2.
+
+To test if instances have the Red Hat billing code:
+curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -i billingProducts
