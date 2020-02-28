@@ -1,7 +1,7 @@
 {
   "builders": [
     {
-      "ami_description": "STIG-partitioned [*NOT HARDENED*], LVM-enabled, \"minimal\" RHEL 7 AMI (yum and license chargeback included) with updates through {{ isotime \"2006-01-02\" }}. Default username `maintuser`. See {{ user `spel_desc_url` }}.",
+      "ami_description": "STIG-partitioned, LVM-enabled, SCAP content_profile_stig-rhel7-disa compliant \"minimal\" RHEL 7 AMI (yum and license chargeback included) Default username `maintuser`.",
       "ami_groups": "{{ user `ami_groups` }}",
       "ami_name": "{{ user `spel_identifier` }}-{{ build_name }}-{{ user `spel_version` }}.x86_64-gp2",
       "ami_regions": "{{ user `ami_regions` }}",
@@ -23,14 +23,14 @@
       "source_ami": "{{ user `source_ami_rhel7_hvm` }}",
       "sriov_support": true,
       "ssh_interface": "{{ user `ssh_interface` }}",
-      "ssh_port": 122,
+      "ssh_port": 22,
       "ssh_pty": true,
       "ssh_timeout": "20m",
       "ssh_username": "spel",
       "subnet_id": "{{ user `subnet_id` }}",
       "temporary_security_group_source_cidrs": "{{ user `security_group_cidrs` }}",
       "type": "amazon-ebs",
-      "user_data_file": "{{ template_dir }}/userdata/tmpfsroot-el7.cloud"
+      "user_data_file": "{{ template_dir }}/userdata/tmpfsroot-el7.cloud.generated"
     }
   ],
   "post-processors": [
@@ -56,6 +56,8 @@
         "echo Restarting systemd",
         "systemctl daemon-reexec",
         "echo Killing processes locking /oldroot",
+        "https_proxy={{ user `spel_proxyserver` }}",
+        "yum install psmisc",
         "fuser -vmk /oldroot"
       ],
       "only": [
