@@ -121,7 +121,7 @@
         {
             "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
             "only": [
-                "minimal-rhel-7-hvm"
+                "minimal-centos-7-hvm"
             ],
             "scripts": [
                 "{{ template_dir }}/hardening/cloudwatch-setup.sh"
@@ -131,7 +131,7 @@
         {
             "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
             "only": [
-                "minimal-rhel-7-hvm"
+                "minimal-centos-7-hvm"
             ],
             "scripts": [
                 "{{ template_dir }}/hardening/scap-remediation.sh"
