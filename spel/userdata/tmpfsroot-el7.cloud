@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Set the default cloud-init user to `spel` and update packages
+# Set the default cloud-init user to `spel`
 #
 ##############################################################################
 system_info:
@@ -26,11 +26,14 @@ runcmd:
     # Prevent selinux from interfering
   - setenforce 0 || true
 
-  - echo "export http_proxy=http://172.31.14.231:3128" > /etc/profile.d/proxy.sh && chmod 755 /etc/profile.d/proxy.sh
-  - echo "export https_proxy=http://172.31.14.231:3128" >> /etc/profile.d/proxy.sh
-  - echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh
-  - echo "proxy=http://172.31.14.231:3128" >> /etc/yum.conf
+  - export SPEL_PROXYSERVER=<PROXYSERVER>
+  - if [ $SPEL_PROXYSERVER ]; then echo "export http_proxy=$SPEL_PROXYSERVER" > /etc/profile.d/proxy.sh && chmod 755 /etc/profile.d/proxy.sh; fi
+  - if [ $SPEL_PROXYSERVER ]; echo "export https_proxy=$SPEL_PROXYSERVER" >> /etc/profile.d/proxy.sh; fi
+  - if [ $SPEL_PROXYSERVER ]; echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh; fi
+  - if [ $SPEL_PROXYSERVER ]; echo "proxy=$SPEL_PROXYSERVER" >> /etc/yum.conf; fi
+
   - yum -y update
+  
   # Get fuser
   - yum -y install psmisc
 

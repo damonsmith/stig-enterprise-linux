@@ -112,6 +112,31 @@
       "direction": "download",
       "source": "/tmp/manifest.txt",
       "type": "file"
+    },
+    {
+      "destination": "/tmp",
+      "source": "{{ template_dir }}/hardening/cloudwatch-audit-logging.conf",
+      "type": "file"
+    },
+    {
+      "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
+      "only": [
+        "minimal-rhel-7-hvm"
+      ],
+      "scripts": [
+        "{{ template_dir }}/hardening/cloudwatch-setup.sh"
+      ],
+      "type": "shell"
+    },
+    {
+      "execute_command": "{{ .Vars }} sudo -E /bin/sh '{{ .Path }}'",
+      "only": [
+        "minimal-rhel-7-hvm"
+      ],
+      "scripts": [
+        "{{ template_dir }}/hardening/scap-remediation.sh"
+      ],
+      "type": "shell"
     }
   ],
   "variables": {
@@ -138,9 +163,9 @@
     "spel_extrarpms": "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm,python36",
     "spel_identifier": "",
     "spel_proxyserver": "",
-    "spel_version": "",
+    "spel_version": "0.0.4",
     "ssh_interface": "private_ip",
-    "subnet_id": "",
+    "subnet_id": "subnet-3751407d",
     "vagrantcloud_token": "{{env `VAGRANTCLOUD_TOKEN`}}",
     "vagrantcloud_username": ""
   }
