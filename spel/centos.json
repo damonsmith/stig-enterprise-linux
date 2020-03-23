@@ -21,7 +21,17 @@
             ],
             "name": "minimal-centos-7-hvm",
             "region": "{{ user `aws_region` }}",
-            "source_ami": "{{ user `source_ami_centos7_hvm` }}",
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                    "name": "CentOS Linux 7 x86_64 HVM EBS ENA*",
+                    "root-device-type": "ebs"
+                },
+                "owners": [
+                    "679593333241"
+                ],
+                "most_recent": true
+            },
             "sriov_support": true,
             "ssh_interface": "{{ user `ssh_interface` }}",
             "ssh_port": 122,
