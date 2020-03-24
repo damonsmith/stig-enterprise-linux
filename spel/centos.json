@@ -124,7 +124,7 @@
             "type": "file"
         },
         {
-            "destination": "/tmp",
+            "destination": "/tmp/cloudwatch-audit-logging.conf",
             "source": "{{ template_dir }}/hardening/cloudwatch-audit-logging.conf",
             "type": "file"
         },
