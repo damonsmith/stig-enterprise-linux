@@ -26,11 +26,11 @@ runcmd:
     # Prevent selinux from interfering
   - setenforce 0 || true
 
-  - export SPEL_PROXYSERVER=<PROXYSERVER>
-  - if [ $SPEL_PROXYSERVER ]; then echo "export http_proxy=$SPEL_PROXYSERVER" > /etc/profile.d/proxy.sh && chmod 755 /etc/profile.d/proxy.sh; fi
-  - if [ $SPEL_PROXYSERVER ]; echo "export https_proxy=$SPEL_PROXYSERVER" >> /etc/profile.d/proxy.sh; fi
-  - if [ $SPEL_PROXYSERVER ]; echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh; fi
-  - if [ $SPEL_PROXYSERVER ]; echo "proxy=$SPEL_PROXYSERVER" >> /etc/yum.conf; fi
+  # - export SPEL_PROXYSERVER=<PROXYSERVER>
+  # - if [ $SPEL_PROXYSERVER ]; then echo "export http_proxy=$SPEL_PROXYSERVER" > /etc/profile.d/proxy.sh && chmod 755 /etc/profile.d/proxy.sh; fi
+  # - if [ $SPEL_PROXYSERVER ]; echo "export https_proxy=$SPEL_PROXYSERVER" >> /etc/profile.d/proxy.sh; fi
+  # - if [ $SPEL_PROXYSERVER ]; echo "export no_proxy=localhost,127.0.0.1,169.254.169.254,.sock" >> /etc/profile.d/proxy.sh; fi
+  # - if [ $SPEL_PROXYSERVER ]; echo "proxy=$SPEL_PROXYSERVER" >> /etc/yum.conf; fi
 
   - yum -y update
   
