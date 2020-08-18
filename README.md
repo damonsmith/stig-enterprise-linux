@@ -34,36 +34,40 @@ aws_secret_access_key = <your soe_ami_builder IAM user access key>
 
 and then chmod 600 that file.
 
-
 Install some tools:
 ```yum install -y unzip git```
 
-Extract the contents of this package into the home folder
-install packer:
-```curl -O https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip```
+4. download the packer executable into the base of the project dir
+```url -O https://releases.hashicorp.com/packer/1.5.1/packer_1.5.1_linux_amd64.zip && unzip packer_1.5.1_linux_amd64.zip && mv packer stig-enterprise-linux/```
 
-customise the build_vars.json file like so:
+5. Customise the settings for your AWS account
+
+create a file called build_vars.json in the project base (the stig-enterprise-linux dir) with the following:
 ```
 {
-    "spel_version": "0.0.4",
-    "subnet_id": "subnet-099d03701d0220f51",
-    "spel_identifier": "YOUR_AMI_ID",
+    "spel_version": "0.0.1",
+    "subnet_id": "<your subnet with internet access>",
+    "spel_identifier": "RHELSOE",
     "aws_region": "ap-southeast-2",
-    "source_ami_rhel7_hvm": "ami-0f1ef883e90ca71c0",
-    "spel_amigen7source": "https://github.com/damonsmith/AMIgen7.git",
-    "spel_proxyserver": "http://1.2.3.4:3128/"
+    "aws_ec2_instance_type": "t2.large",
+    "root_volume_size": "40",
+    "source_ami_rhel7_hvm": "ami-01448715c06d2edb5",
+    "spel_amigen7storlay": "/:rootVol:8,swap:swapVol:2,/home:homeVol:1,/var:varVol:8,/var/log:logVol:6,/var/log/audit:auditVol:6"
 }
+
+
 ```
 
-cd into spel and run the build:
+6. Run the build:
+
+run the build:
 ```
-cd spel
+cd stig-enterprise-linux
 nohup ../packer build -only minimal-rhel-7-hvm -var-file build_vars.json spel/rhel7.json | tee ~/packer-log.txt
 ```
 
-
-
-This should take 15 minutes or so. Once completed successfully the build will output an AMI ID which should be visible in the My AMIs section of AWS EC2.
+This should take 30 minutes or so. Once completed successfully the build will output an AMI ID which should be visible in the My AMIs section of AWS EC2.
 
 To test if instances have the Red Hat billing code:
 curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -i billingProducts
+if it lists a value for billingProducts then it is still a licensed Red Hat Enterprise Linux instance

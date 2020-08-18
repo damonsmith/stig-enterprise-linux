@@ -23,14 +23,14 @@
       "source_ami": "{{ user `source_ami_rhel7_hvm` }}",
       "sriov_support": true,
       "ssh_interface": "{{ user `ssh_interface` }}",
-      "ssh_port": 22,
+      "ssh_port": 122,
       "ssh_pty": true,
       "ssh_timeout": "20m",
       "ssh_username": "spel",
       "subnet_id": "{{ user `subnet_id` }}",
       "temporary_security_group_source_cidrs": "{{ user `security_group_cidrs` }}",
       "type": "amazon-ebs",
-      "user_data_file": "{{ template_dir }}/userdata/tmpfsroot-el7.cloud.generated",
+      "user_data_file": "{{ template_dir }}/userdata/tmpfsroot-el7.cloud",
       "tags": {
           "BuildUUID": "{{user `build_uuid`}}"
       }
@@ -60,7 +60,7 @@
         "systemctl daemon-reexec",
         "echo Killing processes locking /oldroot",
         "https_proxy={{ user `spel_proxyserver` }}",
-        "yum install psmisc",
+        "yum install -y psmisc",
         "fuser -vmk /oldroot"
       ],
       "only": [
@@ -116,11 +116,6 @@
       "destination": ".spel/{{ user `spel_version` }}/{{ user `spel_identifier` }}-{{ build_name }}.manifest.txt",
       "direction": "download",
       "source": "/tmp/manifest.txt",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp",
-      "source": "{{ template_dir }}/hardening/cloudwatch-audit-logging.conf",
       "type": "file"
     },
     {

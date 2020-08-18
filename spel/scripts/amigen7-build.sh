@@ -221,7 +221,7 @@ then
 fi
 
 echo "Executing ChrootBuild.sh"
-bash -eux -o pipefail "${ELBUILD}"/ChrootBuild.sh "${CLIOPT_CUSTOMREPO[@]}" "${CLIOPT_EXTRARPMS[@]}"
+bash "${ELBUILD}"/ChrootBuild.sh "${CLIOPT_CUSTOMREPO[@]}" "${CLIOPT_EXTRARPMS[@]}"
 
 if [[ "${CLOUDPROVIDER}" == "aws" ]]
 then
@@ -297,6 +297,10 @@ then
     (chroot "${CHROOT}" /usr/sbin/waagent --version) >> /tmp/manifest.txt 2>&1
     eval "$XTRACE"
 fi
+
+chroot /mnt/ec2-root yum install -y scap-security-guide
+
+chroot /mnt/ec2-root oscap xccdf eval --remediate --fetch-remote-resources --profile xccdf_org.ssgproject.content_profile_stig --results /tmp/results.xml /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml 2>&1
 
 echo "Saving the RPM manifest"
 rpm --root "${CHROOT}" -qa | sort -u >> /tmp/manifest.txt
